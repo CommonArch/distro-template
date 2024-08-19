@@ -1,0 +1,78 @@
+name: build-image
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and push image
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name != 'pull_request' }}
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        variant: [general, nvidia]
+        desktop: [nogui, xfce, mate, budgie, gnome, plasma]
+        include:
+          - variant: general
+            suffix: ''
+          - variant: nvidia
+            suffix: '-nvidia'
+    steps:
+      # Checkout push-to-registry action GitHub repository
+      - name: Checkout Push to Registry action
+        uses: actions/checkout@v4
+
+      - name: Generate image name
+        run: |
+          REPO_OWNER_LOWERCASE="$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')"
+          echo "REPO_OWNER_LOWERCASE=$REPO_OWNER_LOWERCASE" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME=ghcr.io/$REPO_OWNER_LOWERCASE/${{ github.event.repository.name }}${{ matrix.suffix }}-${{ matrix.desktop }}" >> "$GITHUB_ENV"
+
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env. IMAGE_NAME }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Package Registry
+        uses: docker/login-action@v3
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push the Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Containerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,ignore-error=true
+          platforms: linux/amd64
+          build-args: |
+            CORE_BRANCH=${{ github.ref_name == 'dev' && 'dev' || 'main' }}
+            VARIANT=${{ matrix.variant }}
+            SUFFIX=${{ matrix.suffix }}
+            DESKTOP=${{ matrix.desktop }}
+          provenance: false
