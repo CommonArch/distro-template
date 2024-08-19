@@ -17,13 +17,12 @@ ARG DESKTOP=nogui
 RUN install-packages-build micro firefox
 
 # To include and enable the Caddy web server
-RUN install-packages-build caddy
-RUN systemctl enable caddy
+RUN install-packages-build caddy; systemctl enable caddy
 
 # To use TLP for power-saving on laptops (https://wiki.archlinux.org/title/TLP)
-RUN install-packages-build tlp
-RUN systemctl enable tlp
-RUN systemctl mask systemd-rfkill.service systemd-rfkill.socket
+RUN install-packages-build tlp; \
+    systemctl enable tlp; \
+    systemctl mask systemd-rfkill.service systemd-rfkill.socket
 
 COPY overlays/common overlay[s]/${DESKTOP} /
 RUN rm -f /.gitkeep
