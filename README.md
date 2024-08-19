@@ -16,6 +16,8 @@ You must also have Git installed, either on your host system if you're running L
 
 1. Begin by using this template to create a new repository on GitHub, and proceed by cloning it locally. Alternatively, you could clone this template repository locally and push it to GitHub as a new repository.
 
+    Switch to the `dev` branch with `git switch dev`.
+
 2. In the cloned repository, open `.github/workflows/build.yml`. Here, you can define the desktops you would like to build container images for, which you would later build ISOs from. You can either to choose to build for a subset of the officially supported desktop environments (all of which are included by default; you can remove some of them by editing the list of desktops in the job matrix), or implement support for other desktop environments. However, this guide will cover only the former; adding support for other desktop environments is left as an exercise for the reader.
 
     ```yaml
@@ -49,7 +51,7 @@ RUN useradd -m -s /bin/bash aur && \
     userdel -rf aur; rm -rf /home/aur /etc/sudoers.d/aur
 ```
 
-7. Push your changes to GitHub, and wait for the GitHub Actions workflow run to complete. By default, the image name will be in the format `docker://ghcr.io/<YOUR_USERNAME>/<NAME_OF_REPO>-<NAME_OF_DESKTOP>`, or `docker://ghcr.io/<YOUR_USERNAME>/<NAME_OF_REPO>-nvidia-<NAME_OF_DESKTOP>` for NVIDIA images (images with the proprietary NVIDIA drivers included). For instance, if your GitHub username was `ArchUser` and the name of your GitHub repository `exampledistro`, the name of the GNOME image would be `docker://ghcr.io/ArchUser/exampledistro-gnome`, and for NVIDIA users `docker://ghcr.io/ArchUser/exampledistro-nvidia-gnome`.
+7. Push your changes to GitHub, and wait for the GitHub Actions workflow run to complete. By default, the image name will be in the format `docker://ghcr.io/<YOUR_USERNAME>/<NAME_OF_REPO>-<NAME_OF_DESKTOP>:<BRANCH_NAME>`, or `docker://ghcr.io/<YOUR_USERNAME>/<NAME_OF_REPO>-nvidia-<NAME_OF_DESKTOP>:<BRANCH_NAME>` for NVIDIA images (images with the proprietary NVIDIA drivers included). For instance, if your GitHub username was `ArchUser`, the name of your GitHub repository `exampledistro` and the name of the branch `dev`, the name of the GNOME image would be `docker://ghcr.io/ArchUser/exampledistro-gnome:dev`, and for NVIDIA users `docker://ghcr.io/ArchUser/exampledistro-nvidia-gnome:dev`.
 
 8. In the meantime, if you're on Arch Linux (excluding CommonArch; you do not need to install any packages and can skip to the next step if you're already on CommonArch), run the following command:
 
@@ -73,8 +75,21 @@ RUN useradd -m -s /bin/bash aur && \
 
     For example, to build ISOs for each of the example images in step 7, you would run:
     ```sh
-    sudo ./iso-builder.sh docker://ghcr.io/ArchUser/exampledistro-gnome
-    sudo ./iso-builder.sh docker://ghcr.io/ArchUser/exampledistro-nvidia-gnome
+    sudo ./iso-builder.sh docker://ghcr.io/ArchUser/exampledistro-gnome:dev
+    sudo ./iso-builder.sh docker://ghcr.io/ArchUser/exampledistro-nvidia-gnome:dev
     ```
 
 10. Voila! You should now have installable live ISOs for each of those container images in the current directory. If you're on Windows and completed this guide in WSL2, you can copy the built ISOs from the Linux filesystem in File Explorer. You can test the built ISO on real hardware or in a virtual machine (KVM, Hyper-V, VirtualBox, or VMWare Workstation Player), and it should boot on both legacy BIOS systems and on UEFI systems.
+
+11. Once you've tested the built ISO, merge the `dev` branch of the container image repository with the `main` branch:
+
+    ```sh
+    git pull
+    git switch main
+    git pull
+    git merge dev --ff-only
+    git push
+    git checkout dev
+    ```
+
+    You may then repeat step 9, but using the `main` branch instead of the `dev` branch.

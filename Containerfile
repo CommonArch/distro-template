@@ -2,7 +2,7 @@ ARG CORE_BRANCH=main
 ARG SUFFIX=
 ARG DESKTOP=nogui
 
-FROM ghcr.io/commonarch/system-base${SUFFIX}-${DESKTOP}:${CORE_BRANCH}
+FROM ghcr.io/commonarch/system-base${SUFFIX}-${DESKTOP}:main
 
 ARG CORE_BRANCH=main
 ARG VARIANT=general
