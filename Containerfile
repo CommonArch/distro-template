@@ -11,12 +11,10 @@ ARG DESKTOP=nogui
 # Changes to the base container image go here.
 
 # IMPORTANT: Do NOT use `pacman -S` to install packages.
-# Instead, use install-packages-build, as demonstrated in the following example:
+# Instead, use install-packages-build, as demonstrated in the following examples:
 
-# To include Chromium and Firefox
-RUN install-packages-build chromium firefox
-
-# More examples follow.
+# To include Micro and Firefox
+RUN install-packages-build micro firefox
 
 # To include and enable the Caddy web server
 RUN install-packages-build caddy
