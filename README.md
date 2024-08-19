@@ -1,4 +1,4 @@
-# Distribution Template
+# Atomic Arch Linux-Based Distribution Template & Guide
 
 This repository serves as a template for new atomic, immutable Arch Linux-based distributions using CommonArch. Included (in this README) is a guide to build your own such distribution using this repository.
 

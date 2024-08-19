@@ -27,16 +27,6 @@ RUN install-packages-build tlp
 RUN systemctl enable tlp
 RUN systemctl mask systemd-rfkill.service systemd-rfkill.socket
 
-RUN useradd -m -s /bin/bash aur && \
-    echo "aur ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/aur && \
-    mkdir -p /tmp_aur_build && chown -R aur /tmp_aur_build && \
-    install-packages-build git base-devel; \
-    runuser -u aur -- env -C /tmp_aur_build git clone 'https://aur.archlinux.org/paru-bin.git' && \
-    runuser -u aur -- env -C /tmp_aur_build/paru-bin makepkg -si --noconfirm && \
-    rm -rf /tmp_aur_build && \
-    runuser -u aur -- paru -S --noconfirm ptyxis; \
-    userdel -rf aur; rm -rf /home/aur /etc/sudoers.d/aur
-
 COPY overlays/common overlay[s]/${DESKTOP} /
 RUN rm -f /.gitkeep
 RUN yes | pacman -Scc
