@@ -12,7 +12,7 @@ If you're on Windows, Ubuntu or Arch Linux within WSL2 should be sufficient. Fol
 
 You must also have Git installed, either on your host system if you're running Linux, or within your WSL installation on Windows.
 
-[Skip to usage](#Usage) (for how to update your system to your latest image or switch to a different image, after installing the ISO you build by the following the steps below)
+[System Usage](#Usage) (for how to update your system to your latest image or switch to a different image, after installing the ISO you build by the following the steps below)
 
 ## Instructions
 
