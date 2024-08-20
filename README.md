@@ -91,12 +91,29 @@ RUN useradd -m -s /bin/bash aur && \
     git pull
     git merge dev --ff-only
     git push
-    git checkout dev
+    git switch dev
     ```
 
     You may then repeat step 9, but using the `main` branch instead of the `dev` branch.
 
-12. To push an update/build new images, do **NOT** trigger the build from the GitHub Actions web interface. Instead, always push a new commit (an empty commit if there are no changes and it's only to keep your images up-to-date with the base images; example: `git commit --allow-empty -m "ci: build"`). Commit to the `dev` branch, and once tested, merge it with the main branch as described in step 11.
+12. To push an update/build new images, push a commit to the `dev` branch with your changes. If you do not have any changes to make and it's only to keep your images up-to-date with the base CommonArch images, just push an empty commit by running:
+
+    ```sh
+    git switch dev
+    git commit --allow-empty -m "ci: build"
+    git push
+    ```
+
+    Once tested, merge it into the `main` branch as described in step 11.
+
+    ```sh
+    git pull
+    git switch main
+    git pull
+    git merge dev --ff-only
+    git push
+    git switch dev
+    ```
 
 ## Usage
 
