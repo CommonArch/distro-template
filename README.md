@@ -12,6 +12,8 @@ If you're on Windows, Ubuntu or Arch Linux within WSL2 should be sufficient. Fol
 
 You must also have Git installed, either on your host system if you're running Linux, or within your WSL installation on Windows.
 
+[Skip to usage](#Usage) (for how to update your system to your latest image or switch to a different image, after installing the ISO you build by the following the steps below)
+
 ## Instructions
 
 1. Begin by using this template to create a new repository on GitHub, and proceed by cloning it locally. Alternatively, you could clone this template repository locally and push it to GitHub as a new repository.
@@ -93,3 +95,47 @@ RUN useradd -m -s /bin/bash aur && \
     ```
 
     You may then repeat step 9, but using the `main` branch instead of the `dev` branch.
+
+12. To push an update/build new images, do **NOT** trigger the build from the GitHub Actions web interface. Instead, always push a new commit (an empty commit if there are no changes and it's only to keep your images up-to-date with the base images; example: `git commit --allow-empty -m "ci: build"`). Commit to the `dev` branch, and once tested, merge it with the main branch as described in step 11.
+
+## Usage
+
+### Updating
+
+If you would like to stay on your current image but would like to update to the latest Git commit, run:
+
+```sh
+sudo system update
+```
+
+### Installing packages locally
+
+If you would like to install any packages locally (without including them in your image), edit `/system.yaml` (file in your toplevel/root directory) to add the following lines (replace `package1`, `package2` and `package3` with the list of packages you would like to install):
+
+```yaml
+packages:
+- 'package1'
+- 'package2'
+- 'package3'
+```
+
+Then to proceed to run:
+```sh
+sudo system update -f
+```
+
+The `-f` option forces an update even if there wasn't any new Git commit, as `system update` installs the packages specified in `/system.yaml` as part of the update process on every update after pulling your images.
+
+### Rebasing to another image
+
+To rebase to a different image, run
+
+```sh
+sudo system rebase <IMAGE_NAME>
+```
+
+where `<IMAGE_NAME>` is the name of the image you want to rebase to. For example, if you wanted to switch to CommonArch Workstation GNOME with the NVIDIA drivers, you would run:
+
+```sh
+sudo system rebase docker://ghcr.io/commonarch/workstation-nvidia-gnome:main
+```
